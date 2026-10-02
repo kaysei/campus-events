@@ -4,10 +4,10 @@
 
 | Member | Name | Assigned Role | Responsibilities |
 |---|---|---|---|
-| Member 1 | [Full Name] | Systems Architect & Prompt Lead | Task 1, Task 5 |
-| Member 2 | [Full Name] | Frontend Engineer | Task 2 |
-| Member 3 | [Full Name] | Database & Backend Engineer | Task 3 |
-| Member 4 | [Full Name] | QA & Security Engineer | Task 4 |
+| Member 1 | Keisha Sayoto | Systems Architect & Prompt Lead | Task 1, Task 5 |
+| Member 2 | Dominic Silerio | Frontend Engineer | Task 2 |
+| Member 3 | Elijah Catoy | Database & Backend Engineer | Task 3 |
+| Member 4 | Neil Andrei Lulu | QA & Security Engineer | Task 4 |
 
 ## Setup Instructions
 
