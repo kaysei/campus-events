@@ -39,4 +39,4 @@ public class RegistrationService
         return result?.ToString();
     }
 }
-//yes
+
