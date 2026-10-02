@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campus Events</title>
+<style>
+:root{--bg:#f7f5ef;--ink:#1d2a24;--muted:#4a5a52;--brand:#0b5d3b;--brand-ink:#ffffff;--line:#c9d1cb;--card:#ffffff;--err:#a4161a}
+*{box-sizing:border-box}
+body{margin:0;font-family:Georgia,"Times New Roman",serif;background:var(--bg);color:var(--ink);line-height:1.6}
+a{color:var(--brand)}
+.skip{position:absolute;left:-999px}
+.skip:focus{left:8px;top:8px;background:#fff;padding:8px;z-index:10}
+header,footer{background:var(--brand);color:var(--brand-ink);padding:20px 24px}
+header h1{margin:0;font-size:1.8rem}
+header p{margin:4px 0 0}
+nav ul{display:flex;gap:16px;list-style:none;padding:0;margin:12px 0 0}
+nav a{color:var(--brand-ink)}
+main{max-width:1000px;margin:0 auto;padding:24px}
+section{margin-bottom:40px}
+h2{border-bottom:2px solid var(--brand);padding-bottom:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+article{background:var(--card);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+article img{width:100%;height:120px;object-fit:cover;display:block}
+article div{padding:12px 16px}
+article h3{margin:0 0 4px}
+.meta{color:var(--muted);margin:0;font-size:.95rem}
+.seats{font-weight:bold}
+form{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:20px;max-width:520px}
+label{display:block;font-weight:bold;margin-top:12px}
+input,select,button{font:inherit;width:100%;padding:10px;margin-top:4px;border:1px solid var(--muted);border-radius:4px}
+button{background:var(--brand);color:var(--brand-ink);border-color:var(--brand);cursor:pointer;margin-top:16px;font-weight:bold}
+button.small{width:auto;margin:8px 0 0;padding:6px 12px}
+button:disabled{background:#6b776f;border-color:#6b776f;cursor:not-allowed}
+:focus-visible{outline:3px solid #ffbf47;outline-offset:2px}
+.error{color:var(--err);margin:4px 0 0;min-height:1.2em}
+.status{margin-top:12px;font-weight:bold}
+table{width:100%;border-collapse:collapse;background:var(--card)}
+th,td{border:1px solid var(--line);padding:8px;text-align:left}
+th{background:#e4ece6}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<header>
+<h1>Campus Events</h1>
+<p>Browse upcoming events and reserve your seat.</p>
+<nav aria-label="Primary">
+<ul>
+<li><a href="#catalog">Event catalog</a></li>
+<li><a href="#register">Register</a></li>
+<li><a href="#admin">Attendees</a></li>
+</ul>
+</nav>
+</header>
+<main id="main">
+<section id="catalog" aria-labelledby="catalog-title">
+<h2 id="catalog-title">Upcoming events</h2>
+<div class="grid" id="event-list"></div>
+</section>
+<section id="register" aria-labelledby="register-title">
+<h2 id="register-title">Register for an event</h2>
+<form id="reg-form" novalidate aria-describedby="form-help">
+<p id="form-help" class="meta">Use your university email ending in @univ.edu.ph.</p>
+<label for="fullName">Full name</label>
+<input id="fullName" name="fullName" type="text" autocomplete="name" required aria-label="Full name" aria-describedby="fullName-err">
+<p class="error" id="fullName-err" role="alert"></p>
+<label for="email">University email</label>
+<input id="email" name="email" type="email" autocomplete="email" required aria-label="University email" aria-describedby="email-err">
+<p class="error" id="email-err" role="alert"></p>
+<label for="eventId">Event</label>
+<select id="eventId" name="eventId" required aria-label="Select an event" aria-describedby="eventId-err"></select>
+<p class="error" id="eventId-err" role="alert"></p>
+<button type="submit">Register</button>
+<p class="status" id="status" role="status" aria-live="polite"></p>
+</form>
+</section>
+<section id="admin" aria-labelledby="admin-title">
+<h2 id="admin-title">Registered attendees (admin)</h2>
+<label for="adminEvent">Filter by event</label>
+<select id="adminEvent" aria-label="Filter attendees by event"></select>
+<table aria-label="Registered attendees">
+<caption class="meta">Attendees for the selected event</caption>
+<thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Event</th></tr></thead>
+<tbody id="attendees"></tbody>
+</table>
+</section>
+</main>
+<footer>
+<p>Campus Events prototype. Built for the Applied Generative AI laboratory examination.</p>
+</footer>
+<script>
+const art=(c1,c2)=>"data:image/svg+xml,"+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='400' height='120'><rect width='400' height='120' fill='${c1}'/><circle cx='320' cy='60' r='50' fill='${c2}'/></svg>`);
+const events=[
+{id:1,title:"Freshman Orientation",date:"2026-10-15",venue:"Main Auditorium",capacity:3,img:art("#0b5d3b","#f2c14e"),alt:"Green banner with a gold sun for Freshman Orientation"},
+{id:2,title:"IT Hackathon",date:"2026-10-22",venue:"Computer Lab 2",capacity:20,img:art("#1d2a24","#7fc8a9"),alt:"Dark banner with a mint circle for the IT Hackathon"},
+{id:3,title:"Career Fair",date:"2026-11-05",venue:"University Gymnasium",capacity:50,img:art("#3b5b8c","#f7f5ef"),alt:"Blue banner with a white circle for the Career Fair"}
+];
+let registrations=JSON.parse(localStorage.getItem("registrations")||"[]");
+const domain="@univ.edu.ph";
+const $=id=>document.getElementById(id);
+const taken=id=>registrations.filter(r=>r.eventId===id).length;
+const esc=s=>s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function renderEvents(){
+$("event-list").innerHTML=events.map(e=>{
+const left=e.capacity-taken(e.id);
+return `<article aria-labelledby="ev-${e.id}"><img src="${e.img}" alt="${esc(e.alt)}"><div><h3 id="ev-${e.id}">${esc(e.title)}</h3><p class="meta"><time datetime="${e.date}">${e.date}</time> at ${esc(e.venue)}</p><p class="seats">${left>0?left+" seats left":"Fully booked"}</p><button class="small" data-pick="${e.id}" ${left>0?"":"disabled"} aria-label="Register for ${esc(e.title)}">Register</button></div></article>`;
+}).join("");
+const opts=events.map(e=>`<option value="${e.id}">${esc(e.title)}</option>`).join("");
+$("eventId").innerHTML=`<option value="">Choose an event</option>`+opts;
+const cur=$("adminEvent").value;
+$("adminEvent").innerHTML=opts;
+if(cur)$("adminEvent").value=cur;
+renderAttendees();
+}
+function renderAttendees(){
+const id=Number($("adminEvent").value);
+const rows=registrations.filter(r=>r.eventId===id);
+$("attendees").innerHTML=rows.length?rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.email)}</td><td>${esc(events.find(e=>e.id===r.eventId).title)}</td></tr>`).join(""):`<tr><td colspan="3">No attendees yet.</td></tr>`;
+}
+function setError(id,msg){$(id+"-err").textContent=msg;$(id).setAttribute("aria-invalid",msg?"true":"false")}
+$("event-list").addEventListener("click",e=>{
+const b=e.target.closest("[data-pick]");
+if(!b)return;
+$("eventId").value=b.dataset.pick;
+$("register").scrollIntoView();
+$("fullName").focus();
+});
+$("adminEvent").addEventListener("change",renderAttendees);
+$("reg-form").addEventListener("submit",e=>{
+e.preventDefault();
+const name=$("fullName").value.trim();
+const email=$("email").value.trim().toLowerCase();
+const id=Number($("eventId").value);
+let ok=true;
+setError("fullName",name?"":"Enter your full name.");
+if(!name)ok=false;
+const validEmail=/^[^\s@]+@[^\s@]+$/.test(email)&&email.endsWith(domain);
+setError("email",validEmail?"":"Use an email ending in "+domain+".");
+if(!validEmail)ok=false;
+setError("eventId",id?"":"Choose an event.");
+if(!id)ok=false;
+$("status").textContent="";
+if(!ok)return;
+const ev=events.find(x=>x.id===id);
+if(registrations.some(r=>r.eventId===id&&r.email===email)){setError("email","This email is already registered for that event.");return}
+if(taken(id)>=ev.capacity){setError("eventId","That event is fully booked.");return}
+registrations.push({name,email,eventId:id});
+localStorage.setItem("registrations",JSON.stringify(registrations));
+$("reg-form").reset();
+$("status").textContent="You are registered for "+ev.title+".";
+renderEvents();
+});
+renderEvents();
+</script>
+</body>
+</html>
